@@ -2,16 +2,17 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { exec } = require('child_process');
+const { updateReport } = require('./report_utils');
 
 const app = express();
 const PORT = 3000;
 
-app.use('/public', express.static('public'));
+app.use('/public', express.static('python/public'));
 app.use(express.json());
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public/');
+        cb(null, 'python/public/');
     },
     filename: (req, file, cb) => {
         const timestamp = Date.now();
@@ -22,11 +23,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
-    } else {
-        cb(new Error('Only image files are allowed!'), false);
-    }
+    cb(null, true);
+    // if (file.mimetype.startsWith('image/')) {
+    // } else {
+    //     cb(new Error('Only image files are allowed!'), false);
+    // }
 };
 
 const upload = multer({ storage, fileFilter });
@@ -38,9 +39,9 @@ app.post('/segment', upload.single('image'), (req, res) => {
         const id = fileName.split('.')[0];
         const segFilePath = `public/${id}_seg.png`;
 
-        const cmd = `python ./python/segment.py ${filePath} ${segFilePath}`;
+        const cmd = `python segment.py "${filePath}" "${segFilePath}"`;
 
-        exec(cmd, (error, stdout, stderr) => {
+        exec(cmd, { cwd: 'python' }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error code: ${error.code}`);
                 console.error(`Error message: ${error.message}`);
@@ -51,7 +52,6 @@ app.post('/segment', upload.single('image'), (req, res) => {
             console.log(`Standard Output:\n${stdout}`);
             if (stderr) {
                 console.error(`Standard Error:\n${stderr}`);
-                res.status(400).json({ error: stderr });
             }
 
             console.log('Segmentation completed');
@@ -63,6 +63,8 @@ app.post('/segment', upload.single('image'), (req, res) => {
                 "seg_image_url": segFilePath,
                 "suggestions": null,
             };
+
+            updateReport(report);
 
             res.status(200).json({ report });
         });
@@ -77,9 +79,9 @@ app.post('/classify', (req, res) => {
         const filePath = `public/${id}.png`;
         const segFilePath = `public/${id}_seg.png`;
 
-        const cmd = `python ./python/classify.py ${segFilePath}`;
+        const cmd = `python classify.py "${segFilePath}"`;
 
-        exec(cmd, (error, stdout, stderr) => {
+        exec(cmd, { cwd: 'python' }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error code: ${error.code}`);
                 console.error(`Error message: ${error.message}`);
@@ -90,13 +92,12 @@ app.post('/classify', (req, res) => {
             console.log(`Standard Output:\n${stdout}`);
             if (stderr) {
                 console.error(`Standard Error:\n${stderr}`);
-                res.status(400).json({ error: stderr });
             }
 
             console.log('Classfication completed');
 
             const lines = stdout.trim().split('\n');
-            const label = lines[lines.length-1].trim();
+            const label = lines[lines.length - 1].trim();
 
             const report = {
                 "id": id,
@@ -105,6 +106,8 @@ app.post('/classify', (req, res) => {
                 "seg_image_url": segFilePath,
                 "suggestions": "hehe",
             };
+
+            updateReport(report);
 
             res.status(200).json({ report });
         });
