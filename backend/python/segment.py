@@ -1,7 +1,5 @@
-import os
-import shutil
 import sys
-
+import os
 if len(sys.argv) != 3:
     print(f"Usage: python3 {sys.argv[0]} <input_file_path> <output_file_path>")
     sys.exit(1)
@@ -9,8 +7,11 @@ if len(sys.argv) != 3:
 input_file_path = sys.argv[1]
 output_file_path = sys.argv[2]
 
-os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+folder = os.path.dirname(output_file_path)
+if folder:
+    os.makedirs(folder, exist_ok=True)
 
-# write code to segment the input file
+from task1 import final_segment_image
+from task12 import mask_image
 
-shutil.copyfile(input_file_path, output_file_path)
+mask_image(input_file_path, output_file_path)

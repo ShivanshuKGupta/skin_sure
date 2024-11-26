@@ -95,10 +95,13 @@ app.post('/classify', (req, res) => {
 
             console.log('Classfication completed');
 
+            const lines = stdout.trim().split('\n');
+            const label = lines[lines.length-1].trim();
+
             const report = {
                 "id": id,
                 "imgUrl": filePath,
-                "class": `${stdout.trim()}`,
+                "class": `${label}`,
                 "seg_image_url": segFilePath,
                 "suggestions": "hehe",
             };
