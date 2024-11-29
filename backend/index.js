@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const { exec } = require('child_process');
 const { updateReport } = require('./report_utils');
+const { getSuggestions } = require('./suggestion_utils');
 
 const app = express();
 const PORT = 3000;
@@ -37,7 +38,7 @@ app.post('/segment', upload.single('image'), (req, res) => {
         const fileName = req.file.filename;
         const filePath = `public/${fileName}`;
         const id = fileName.split('.')[0];
-        const segFilePath = `public/${id}_seg.png`;
+        const segFilePath = `public/${id}_seg.jpg`;
 
         const cmd = `python segment.py "${filePath}" "${segFilePath}"`;
 
@@ -76,12 +77,12 @@ app.post('/segment', upload.single('image'), (req, res) => {
 app.post('/classify', (req, res) => {
     try {
         const { id } = req.body;
-        const filePath = `public/${id}.png`;
-        const segFilePath = `public/${id}_seg.png`;
+        const filePath = `public/${id}.jpg`;
+        const segFilePath = `public/${id}_seg.jpg`;
 
         const cmd = `python classify.py "${segFilePath}"`;
 
-        exec(cmd, { cwd: 'python' }, (error, stdout, stderr) => {
+        exec(cmd, { cwd: 'python' }, async (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error code: ${error.code}`);
                 console.error(`Error message: ${error.message}`);
@@ -104,7 +105,7 @@ app.post('/classify', (req, res) => {
                 "imgUrl": filePath,
                 "class": `${label}`,
                 "seg_image_url": segFilePath,
-                "suggestions": "hehe",
+                "suggestions": await getSuggestions(label),
             };
 
             updateReport(report);

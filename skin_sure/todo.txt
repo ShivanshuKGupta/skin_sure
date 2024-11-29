@@ -1,0 +1,21 @@
+1. About us and disclaimer
+2. Reports Screen
+3. Home Page: Skin Cancer and how to use this app.
+4. [DONE] Zoom Slider
+5. A Small chat window for asking more suggestions
+6. Click on screen to focus/click photo.
+7. Report Screen:
+    7.1 Label
+    7.2 Causes?
+    7.3 Treatment
+    7.4 Precautions
+    7.5 Ask follow up on this in the chat window.
+    7.6 Risk Assement
+    7.7 Results: 39% Bening Lesion(!) -> click to view its details
+    7.8 Save result pdf
+8. [DONE] Reports Screen -> grid view
+9. [DONE] Flash Button
+10. Camera Flip
+11. [DONE] QR code type camera and type instructions on top
+12. Logo
+13. [DONE] Blurry, Focus, Well-lit, Mole Detection
