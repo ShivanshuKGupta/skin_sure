@@ -1,8 +1,9 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../extensions/report_extension.dart';
 import '../globals.dart';
@@ -30,6 +31,8 @@ class _CameraScreenState extends State<CameraScreen> {
   double maxZoomLevel = 10;
   double minZoomLevel = 0;
 
+  int cameraIndex = 0;
+
   Offset scaleStart = Offset.zero;
 
   @override
@@ -54,6 +57,9 @@ class _CameraScreenState extends State<CameraScreen> {
     maxZoomLevel = await controller.getMaxZoomLevel();
     minZoomLevel = await controller.getMinZoomLevel();
     zoomLevel = minZoomLevel;
+    if (!kDebugMode) {
+      await controller.setFlashMode(FlashMode.always);
+    }
     setState(() {});
   }
 
@@ -79,28 +85,43 @@ class _CameraScreenState extends State<CameraScreen> {
     // final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.black,
       extendBody: true,
       extendBodyBehindAppBar: true,
       body: Center(
         child: imageSent || report != null
             ? report?.segImagePath == null
-                ? const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      Text(
-                        'Please wait while we extract the mole...',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
+                ? const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        Text(
+                          'Please wait while we extract the mole',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   )
                 : OverlayedImages(
+                    tag: report?.id ?? 'segmented_image',
                     imageSrc: Image.network(report!.imageUrl),
-                    imageDest: Image.network(report!.segImageUrl),
+                    imageDest: Image.network(report!.segImageUrl)
+                        .animate(
+                      onComplete: (controller) => controller.repeat(),
+                    )
+                        .shimmer(
+                      colors: [
+                        Colors.transparent.withOpacity(0.5),
+                        Colors.black.withOpacity(0.01),
+                        Colors.transparent.withOpacity(0.5),
+                      ],
+                      duration: const Duration(milliseconds: 2000),
+                    ),
                   )
             : GestureDetector(
                 onTap: () {},
@@ -172,15 +193,13 @@ class _CameraScreenState extends State<CameraScreen> {
                         right: 10,
                         child: IconButton(
                           onPressed: () async {
+                            cameraIndex = (cameraIndex + 1) %
+                                cameraSingleton.cameras.length;
                             controller = CameraController(
-                              controller.cameraId.toString() ==
-                                      cameraSingleton.cameras[1].name
-                                  ? cameraSingleton.cameras[0]
-                                  : cameraSingleton.cameras[1],
+                              cameraSingleton.cameras[cameraIndex],
                               ResolutionPreset.max,
                               enableAudio: false,
                             );
-                            log('Camera ID: ${controller.cameraId} | cameraSingleton.cameras[0].name: ${cameraSingleton.cameras[0].name} | cameraSingleton.cameras[1].name: ${cameraSingleton.cameras[1].name}');
                             await initializeController();
                             setState(() {});
                           },
@@ -305,7 +324,7 @@ class _CameraScreenState extends State<CameraScreen> {
   void takePicture() async {
     final image = await controller.takePicture();
     if (await checkImageBlur(File(image.path))) {
-      showError('Image is blurred. Please take a clear image');
+      showError('Image is blurry.\nPlease take a clear image');
       return;
     }
     final croppedImage = await cropImage(image);
@@ -313,7 +332,6 @@ class _CameraScreenState extends State<CameraScreen> {
     if (croppedImage == null) {
       return;
     }
-    showMsg('Please wait while we extract the mole...');
     try {
       setState(() {
         imageSent = true;
@@ -342,7 +360,6 @@ class CameraPermissionNotAllowedWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

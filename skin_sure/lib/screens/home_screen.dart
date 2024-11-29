@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../extensions/report_extension.dart';
+import '../globals.dart';
 import '../models/report.dart';
 import '../services/server.dart';
 import '../widgets/report_tile.dart';
@@ -19,13 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'Reports',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.transparent,
+        title: const Text('Reports'),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -40,7 +36,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                return const Center(child: Text('No Reports Yet!'));
+                return ListView(
+                  children: [
+                    SizedBox(
+                      height: height - MediaQuery.of(context).padding.top - 100,
+                      width: double.infinity,
+                      child: const Center(
+                        child: Text(
+                          'No Reports Yet!',
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
               }
               List<Report> reports = snapshot.data!;
               reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -59,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,

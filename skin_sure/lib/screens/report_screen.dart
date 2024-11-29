@@ -1,11 +1,11 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 import '../extensions/report_extension.dart';
 import '../models/report.dart';
 import '../services/notification_service.dart';
 import '../services/server.dart';
+import '../utils/extensions/string_extension.dart';
+import '../utils/label_utils.dart';
 import '../widgets/overlayed_images.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -22,16 +22,18 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    log('report.imageUrl = ${report.imageUrl}');
     return Scaffold(
       appBar: AppBar(
-        title: Text(report.createdAt.toString()),
+        title: Text(report.label?.toUpperCase() ?? 'Report'),
         actions: [
           if (loading)
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(),
+              ),
             )
           else
             IconButton(
@@ -56,14 +58,28 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
       body: Column(
         children: [
-          OverlayedImages(
-            imageSrc: Image.network(report.imageUrl),
-            imageDest: Image.network(report.segImageUrl),
+          InteractiveViewer(
+            child: OverlayedImages(
+              tag: report.id,
+              imageSrc: Image.network(report.imageUrl),
+              imageDest: Image.network(report.segImageUrl),
+            ),
           ),
           const Divider(),
-          Text(report.label ?? 'Not yet classified yet.'),
+          Text(
+            labelFullForms[report.label]?.toPascalCase() ??
+                'Not yet classified yet.',
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
           const Divider(),
-          Text(report.suggestions ?? 'No suggestions yet.'),
+          Text(
+            report.suggestions ?? 'No suggestions yet.',
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
         ],
       ),
     );

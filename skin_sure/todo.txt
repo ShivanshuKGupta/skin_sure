@@ -3,7 +3,7 @@
 3. Home Page: Skin Cancer and how to use this app.
 4. [DONE] Zoom Slider
 5. A Small chat window for asking more suggestions
-6. Click on screen to focus/click photo.
+6. [LEFT] Click on screen to focus/click photo.
 7. Report Screen:
     7.1 Label
     7.2 Causes?
@@ -15,7 +15,7 @@
     7.8 Save result pdf
 8. [DONE] Reports Screen -> grid view
 9. [DONE] Flash Button
-10. Camera Flip
+10. [DONE] Camera Flip
 11. [DONE] QR code type camera and type instructions on top
 12. Logo
 13. [DONE] Blurry, Focus, Well-lit, Mole Detection
