@@ -8,7 +8,7 @@ import '../models/report.dart';
 class Server {
   Server._();
 
-  static const serverUrl = 'http://192.168.52.2:3000';
+  static const serverUrl = 'http://192.168.150.64:3000';
   static const segmentUrl = '$serverUrl/segment';
   static const classifyUrl = '$serverUrl/classify';
   static const reportsUrl = '$serverUrl/public/reports.json';

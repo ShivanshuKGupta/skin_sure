@@ -80,6 +80,33 @@ class _ReportScreenState extends State<ReportScreen> {
               color: Colors.white,
             ),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              // final image =
+              //     await ImagePicker().pickImage(source: ImageSource.gallery);
+              // if (image == null) {
+              //   return;
+              // }
+              // final imageBytes = await image.readAsBytes();
+              // final input = imageToBytesListFloat32(imageBytes, 224, 224, 3);
+              // final output = List<List<dynamic>>.filled(1, List.filled(7, 0));
+              // // final image =
+              // //     await NetworkAssetBundle(Uri.parse(report.segImageUrl))
+              // //         .load(report.segImageUrl);
+              // // final inputBytes = image.buffer.asUint8List();
+              // try {
+              //   final interpreter =
+              //       await Interpreter.fromAsset(TfService.modelAssetPath);
+              //   final output = Uint8List.fromList(List.filled(1, 0));
+              //   interpreter.run(input, output);
+              //   interpreter.close();
+              //   print('output: $output');
+              // } catch (e) {
+              //   showError('Error: $e');
+              // }
+            },
+            child: const Text('Classify using MobileNet v2'),
+          ),
         ],
       ),
     );
