@@ -1,22 +1,15 @@
-import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:image_picker/image_picker.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 class ImageClassifier {
-  static const String modelAssetPath = 'assets/models/model.tflite';
+  static const String mobileNetV2ModelAssetPath = 'assets/models/model.tflite';
 
-  static Future<List<double>> processImage() async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) {
-      print('No image selected');
-      return [];
-    }
-
+  static Future<List<double>> classifyImage({
+    required final String modelAssetPath,
+    required final Uint8List imageBytes,
+  }) async {
     // Load and preprocess image
-    final imageBytes = await File(image.path).readAsBytes();
     final input = imageToByteListFloat32(imageBytes, 224, 224, 3);
     final output = List<List<double>>.filled(1, List.filled(7, 0.0));
 
@@ -26,7 +19,7 @@ class ImageClassifier {
       interpreter.run(input, output);
       interpreter.close();
 
-      print('Model output: $output');
+      print('Model output: ${output[0]}');
       return output[0];
     } catch (e) {
       print('Error: $e');

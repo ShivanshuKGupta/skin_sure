@@ -1,114 +1,361 @@
+import 'dart:developer';
+import 'dart:io';
+import 'dart:math' show max;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../extensions/report_extension.dart';
 import '../models/report.dart';
 import '../services/notification_service.dart';
 import '../services/server.dart';
+import '../services/tf_service.dart';
 import '../utils/extensions/string_extension.dart';
 import '../utils/label_utils.dart';
 import '../widgets/overlayed_images.dart';
 
 class ReportScreen extends StatefulWidget {
-  final Report report;
-  const ReportScreen({required this.report, super.key});
+  final Report? report;
+  final File? image;
+  const ReportScreen({
+    super.key,
+    this.report,
+    this.image,
+  });
 
   @override
   State<ReportScreen> createState() => _ReportScreenState();
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  late Report report = widget.report;
-  bool loading = false;
+  Report? report;
+  bool classifiying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    report = widget.report;
+
+    /// If image is not classified yet, we will send to be classified as soon as
+    /// possible using the image
+    if (report == null) {
+      if (widget.image == null) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          showError('Image is required to classify');
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        });
+      }
+      extractMole(widget.image!); // This will also classify the image
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
+    final loadingWidget = SizedBox(
+      width: double.infinity,
+      height: height / 3,
+    ).animate(onComplete: (c) => c.repeat()).shimmer(
+      colors: [
+        Colors.transparent.withOpacity(0.5),
+        Colors.black.withOpacity(0.01),
+        Colors.transparent.withOpacity(0.5),
+      ],
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    Widget segImage = report?.segImagePath == null
+        ? loadingWidget
+        : Image.network(report!.segImageUrl);
+    if (classifiying) {
+      segImage = segImage
+          .animate(
+        target: classifiying ? 0 : 1,
+        onComplete: (c) => classifiying ? c.repeat() : null,
+      )
+          .shimmer(
+        colors: [
+          Colors.transparent.withOpacity(0.5),
+          Colors.black.withOpacity(0.01),
+          Colors.transparent.withOpacity(0.5),
+        ],
+        duration: const Duration(milliseconds: 1500),
+      );
+    }
+
+    Widget srcImage = (widget.image != null
+        ? Image.file(File(widget.image!.path))
+        : loadingWidget);
+    if (classifiying) {
+      srcImage = srcImage
+          .animate(
+        target: classifiying ? 0 : 1,
+        onComplete: (c) => classifiying ? c.repeat() : null,
+      )
+          .shimmer(
+        colors: [
+          Colors.transparent.withOpacity(0.5),
+          Colors.black.withOpacity(0.01),
+          Colors.transparent.withOpacity(0.5),
+        ],
+        duration: const Duration(milliseconds: 1500),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(report.label?.toUpperCase() ?? 'Report'),
+        title: Text(report == null ? 'Extracting mole...' : 'Report'),
         actions: [
-          if (loading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(),
-              ),
-            )
-          else
-            IconButton(
-              onPressed: () async {
-                try {
-                  setState(() {
-                    loading = true;
-                  });
-                  report = await server.classifyImage(report);
-                  setState(() {});
-                  showMsg('Re-classified as ${report.label}');
-                } catch (e) {
-                  showError('Error: $e');
-                }
-                setState(() {
-                  loading = false;
-                });
-              },
-              icon: const Icon(Icons.refresh),
+          if (report != null)
+            ElevatedButton.icon(
+              onPressed: classifiying
+                  ? null
+                  : () {
+                      classifyImage();
+                    },
+              label: const Text('Re-classify'),
+              icon: classifiying
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                  : const Icon(Icons.refresh_rounded),
             ),
         ],
       ),
-      body: Column(
-        children: [
-          InteractiveViewer(
-            child: OverlayedImages(
-              tag: report.id,
-              imageSrc: Image.network(report.imageUrl),
-              imageDest: Image.network(report.segImageUrl),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            InteractiveViewer(
+              child: OverlayedImages(
+                tag: report?.id ?? 'loading...',
+                imageSrc: report?.imgPath == null
+                    ? srcImage
+                    : Image.network(report!.imageUrl),
+                imageDest: segImage,
+              ),
             ),
-          ),
-          const Divider(),
-          Text(
-            labelFullForms[report.label]?.toPascalCase() ??
-                'Not yet classified yet.',
-            style: const TextStyle(
-              color: Colors.white,
+            const Divider(),
+            Text(
+              report?.label?.toPascalCase() ?? 'Not yet classified yet.',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
             ),
-          ),
-          const Divider(),
-          Text(
-            report.suggestions ?? 'No suggestions yet.',
-            style: const TextStyle(
-              color: Colors.white,
+            const Divider(),
+            Text(
+              report?.suggestions ?? 'No suggestions yet.',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              // final image =
-              //     await ImagePicker().pickImage(source: ImageSource.gallery);
-              // if (image == null) {
-              //   return;
-              // }
-              // final imageBytes = await image.readAsBytes();
-              // final input = imageToBytesListFloat32(imageBytes, 224, 224, 3);
-              // final output = List<List<dynamic>>.filled(1, List.filled(7, 0));
-              // // final image =
-              // //     await NetworkAssetBundle(Uri.parse(report.segImageUrl))
-              // //         .load(report.segImageUrl);
-              // // final inputBytes = image.buffer.asUint8List();
-              // try {
-              //   final interpreter =
-              //       await Interpreter.fromAsset(TfService.modelAssetPath);
-              //   final output = Uint8List.fromList(List.filled(1, 0));
-              //   interpreter.run(input, output);
-              //   interpreter.close();
-              //   print('output: $output');
-              // } catch (e) {
-              //   showError('Error: $e');
-              // }
-            },
-            child: const Text('Classify using MobileNet v2'),
-          ),
-        ],
+            if (kDebugMode)
+              ElevatedButton(
+                onPressed: () async {
+                  /// Pick Image from server
+                  // final image =
+                  //     await ImagePicker().pickImage(source: ImageSource.gallery);
+                  // if (image == null) {
+                  //   return;
+                  // }
+                  // final imageBytes = await image.readAsBytes();
+
+                  /// Pick Image from Gallery
+                  final picker = ImagePicker();
+                  final image =
+                      await picker.pickImage(source: ImageSource.gallery);
+                  if (image == null) {
+                    print('No image selected');
+                    return;
+                  }
+                  final input = await File(image.path).readAsBytes();
+
+                  /// Classification
+                  final probabilities = await ImageClassifier.classifyImage(
+                    imageBytes: input,
+                    modelAssetPath: ImageClassifier.mobileNetV2ModelAssetPath,
+                  );
+
+                  /// Probablities to label
+                  final label =
+                      probabilities.indexOf(probabilities.reduce(max));
+                  showMsg(
+                      'Classified as ${labelFullForms.keys.toList()[label]}');
+                },
+                child: const Text('Classify using MobileNet v2'),
+              ),
+          ],
+        ),
       ),
     );
   }
+
+  void extractMole(File image) async {
+    log('Extracting mole from image: ${image.path}');
+    setState(() {
+      classifiying = true;
+    });
+    if (report != null) {
+      showError('Report already segmented');
+      return;
+    }
+
+    /// Extract mole from image
+    try {
+      report = await server.segmentImage(image.path);
+    } catch (e) {
+      showError('Error extracting mole: $e');
+    }
+
+    /// After check if report lable is null, if yes then classify image
+
+    if (report!.label == null) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        setState(() {
+          classifiying = false;
+        });
+        classifyImage();
+      });
+    }
+  }
+
+  void classifyImage() async {
+    log('Classifying image: ${report!.id}');
+    setState(() {
+      classifiying = true;
+    });
+
+    /// Classify image
+    try {
+      report = await server.classifyImage(report!);
+    } catch (e) {
+      showError('Error classifying image: $e');
+    }
+
+    setState(() {
+      classifiying = false;
+    });
+  }
 }
+
+// class ReportScreen extends StatefulWidget {
+//   final Report? report;
+//   final XFile? image;
+//   const ReportScreen({
+//     required this.report,
+//     required this.image,
+//     super.key,
+//   });
+
+//   @override
+//   State<ReportScreen> createState() => _ReportScreenState();
+// }
+
+// class _ReportScreenState extends State<ReportScreen> {
+//   Report? report = widget.report;
+//   bool loading = false;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(report.label?.toUpperCase() ?? 'Report'),
+//         actions: [
+//           if (loading)
+//             const Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: SizedBox(
+//                 width: 20,
+//                 height: 20,
+//                 child: CircularProgressIndicator(),
+//               ),
+//             )
+//           else
+//             IconButton(
+//               onPressed: () async {
+//                 try {
+//                   setState(() {
+//                     loading = true;
+//                   });
+//                   report = await server.classifyImage(report);
+//                   setState(() {});
+//                   showMsg('Re-classified as ${report.label}');
+//                 } catch (e) {
+//                   showError('Error: $e');
+//                 }
+//                 setState(() {
+//                   loading = false;
+//                 });
+//               },
+//               icon: const Icon(Icons.refresh),
+//             ),
+//         ],
+//       ),
+//       body: Column(
+//         children: [
+//           InteractiveViewer(
+//             child: OverlayedImages(
+//               tag: report.id,
+//               imageSrc: Image.network(report.imageUrl),
+//               imageDest: Image.network(report.segImageUrl),
+//             ),
+//           ),
+//           const Divider(),
+//           Text(
+//             labelFullForms[report.label]?.toPascalCase() ??
+//                 'Not yet classified yet.',
+//             style: const TextStyle(
+//               color: Colors.white,
+//             ),
+//           ),
+//           const Divider(),
+//           Text(
+//             report.suggestions ?? 'No suggestions yet.',
+//             style: const TextStyle(
+//               color: Colors.white,
+//             ),
+//           ),
+//           if (kDebugMode)
+//             ElevatedButton(
+//               onPressed: () async {
+//                 /// Pick Image from server
+//                 // final image =
+//                 //     await ImagePicker().pickImage(source: ImageSource.gallery);
+//                 // if (image == null) {
+//                 //   return;
+//                 // }
+//                 // final imageBytes = await image.readAsBytes();
+
+//                 /// Pick Image from Gallery
+//                 final picker = ImagePicker();
+//                 final image =
+//                     await picker.pickImage(source: ImageSource.gallery);
+//                 if (image == null) {
+//                   print('No image selected');
+//                   return;
+//                 }
+//                 final input = await File(image.path).readAsBytes();
+
+//                 /// Classification
+//                 final probabilities = await ImageClassifier.classifyImage(
+//                   imageBytes: input,
+//                   modelAssetPath: ImageClassifier.mobileNetV2ModelAssetPath,
+//                 );
+
+//                 /// Probablities to label
+//                 final label = probabilities.indexOf(probabilities.reduce(max));
+//                 showMsg('Classified as ${labelFullForms.keys.toList()[label]}');
+//               },
+//               child: const Text('Classify using MobileNet v2'),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }

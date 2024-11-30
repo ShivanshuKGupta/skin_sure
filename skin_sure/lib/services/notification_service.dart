@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../globals.dart';
@@ -13,7 +15,7 @@ void showMsg(dynamic msg) {
 }
 
 void showError(String msg) {
-  debugPrint(msg);
+  log(msg, name: 'Error');
   ScaffoldMessenger.of(appContext).showSnackBar(
     SnackBar(
       content: Text(msg),

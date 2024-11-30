@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 /// Images with black pixels will become transparent.
 class OverlayedImages extends StatelessWidget {
   final Widget imageSrc;
-  final Widget imageDest;
+  final Widget? imageDest;
   final String tag;
 
   const OverlayedImages({
-    required this.imageSrc,
-    required this.imageDest,
     required this.tag,
+    required this.imageDest,
+    required this.imageSrc,
     super.key,
   });
 
@@ -20,8 +20,11 @@ class OverlayedImages extends StatelessWidget {
       tag: tag,
       child: Stack(
         children: [
-          imageDest,
-          Opacity(opacity: 0.5, child: imageSrc),
+          if (imageDest != null) imageDest!,
+          if (imageDest == null)
+            imageSrc
+          else
+            Opacity(opacity: 0.5, child: imageSrc),
         ],
       ),
     );

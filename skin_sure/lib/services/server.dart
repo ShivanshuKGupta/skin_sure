@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/report.dart';
@@ -8,10 +9,12 @@ import '../models/report.dart';
 class Server {
   Server._();
 
-  static const serverUrl = 'http://192.168.150.64:3000';
-  static const segmentUrl = '$serverUrl/segment';
-  static const classifyUrl = '$serverUrl/classify';
-  static const reportsUrl = '$serverUrl/public/reports.json';
+  static String serverUrl = !kDebugMode
+      ? 'https://wds1cg8m-3000.inc1.devtunnels.ms'
+      : 'http://192.168.22.23:3000';
+  static String get segmentUrl => '$serverUrl/segment';
+  static String get classifyUrl => '$serverUrl/classify';
+  static String get reportsUrl => '$serverUrl/public/reports.json';
 
   Future<Report> segmentImage(String imagePath) async {
     var request = http.MultipartRequest(

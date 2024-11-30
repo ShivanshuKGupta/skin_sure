@@ -1,5 +1,5 @@
-1. About us and disclaimer
-2. Reports Screen
+1. [SKIP] About us and disclaimer
+2. Reports Screen [Make responsive enough for segmenting and classifiying]
 3. Home Page: Skin Cancer and how to use this app.
 4. [DONE] Zoom Slider
 5. A Small chat window for asking more suggestions
@@ -17,5 +17,7 @@
 9. [DONE] Flash Button
 10. [DONE] Camera Flip
 11. [DONE] QR code type camera and type instructions on top
-12. Logo
-13. [DONE] Blurry, Focus, Well-lit, Mole Detection
+12. [Shivanshu Requested] Logo
+13. [Santosh Requested] Blurry, Focus, Well-lit, Mole Detection
+14. Use tflite versions of the models
+15. [DONE] Optimize backend to load model only once, when the server starts

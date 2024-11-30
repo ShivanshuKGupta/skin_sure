@@ -175,41 +175,27 @@ class _CameraScreenState extends State<CameraScreen> {
                         ),
                       ),
                     ),
+                    Positioned(
+                      top: 40,
+                      left: 10,
+                      child: IconButton(
+                        iconSize: 30,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.keyboard_arrow_left_rounded),
+                      ),
+                    ),
                     const Positioned(
-                      top: 100,
+                      top: 45,
                       right: 40,
-                      left: 40,
+                      left: 50,
                       child: Text(
                         'Please take your photo in proper lighting and focus on the mole',
                         style: TextStyle(color: Colors.white, fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ),
-
-                    /// Camera Flip Button
-                    if (cameraSingleton.cameras.length > 1)
-                      Positioned(
-                        top: 20,
-                        right: 10,
-                        child: IconButton(
-                          onPressed: () async {
-                            cameraIndex = (cameraIndex + 1) %
-                                cameraSingleton.cameras.length;
-                            controller = CameraController(
-                              cameraSingleton.cameras[cameraIndex],
-                              ResolutionPreset.max,
-                              enableAudio: false,
-                            );
-                            await initializeController();
-                            setState(() {});
-                          },
-                          color: Colors.white,
-                          iconSize: 40,
-                          icon: const Icon(
-                            Icons.flip_camera_ios_rounded,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -278,14 +264,34 @@ class _CameraScreenState extends State<CameraScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
+                      // IconButton(
+                      //   onPressed: () async {
+                      //     Navigator.of(context).pop();
+                      //   },
+                      //   color: Colors.white,
+                      //   icon: const Icon(
+                      //     Icons.close_rounded,
+                      //     size: 50,
+                      //   ),
+                      // ),
                       IconButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: cameraSingleton.cameras.isEmpty
+                            ? null
+                            : () async {
+                                cameraIndex = (cameraIndex + 1) %
+                                    cameraSingleton.cameras.length;
+                                controller = CameraController(
+                                  cameraSingleton.cameras[cameraIndex],
+                                  ResolutionPreset.max,
+                                  enableAudio: false,
+                                );
+                                await initializeController();
+                                setState(() {});
+                              },
                         color: Colors.white,
+                        iconSize: 40,
                         icon: const Icon(
-                          Icons.close_rounded,
-                          size: 50,
+                          Icons.flip_camera_ios_rounded,
                         ),
                       ),
                       IconButton(
@@ -332,17 +338,27 @@ class _CameraScreenState extends State<CameraScreen> {
     if (croppedImage == null) {
       return;
     }
-    try {
-      setState(() {
-        imageSent = true;
-      });
-      report = await server.segmentImage(croppedImage.path);
-      setState(() {
-        imageSent = false;
-      });
-    } catch (e) {
-      showError(e.toString());
+    // try {
+    //   setState(() {
+    //     imageSent = true;
+    //   });
+    //   report = await server.segmentImage(croppedImage.path);
+    //   setState(() {
+    //     imageSent = false;
+    //   });
+    // } catch (e) {
+    //   showError(e.toString());
+    // }
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
     }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ReportScreen(
+          image: File(croppedImage.path),
+        ),
+      ),
+    );
   }
 }
 

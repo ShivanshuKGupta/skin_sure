@@ -1,11 +1,17 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../extensions/report_extension.dart';
 import '../globals.dart';
 import '../models/report.dart';
 import '../services/server.dart';
+import '../utils/image_utils.dart';
 import '../widgets/report_tile.dart';
 import 'camera_screen.dart';
+import 'report_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
+                log('Error: ${snapshot.error}', name: 'HomeScreen');
                 return ListView(
                   children: [
                     SizedBox(
@@ -68,12 +75,55 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const CameraScreen()));
-        },
-        child: const Icon(Icons.camera_alt),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'camera',
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CameraScreen()));
+              },
+              child: const Icon(Icons.photo_camera_outlined),
+            ),
+            const SizedBox(width: 10),
+            FloatingActionButton(
+              heroTag: 'gallery',
+              onPressed: () async {
+                final picker = ImagePicker();
+                final image =
+                    await picker.pickImage(source: ImageSource.gallery);
+                if (image == null) {
+                  print('No image selected');
+                  return;
+                }
+                // if (await checkImageBlur(File(image.path))) {
+                //   showError('Image is blurry.\nPlease take a clear image');
+                //   return;
+                // }
+                final croppedImage = await cropImage(image);
+                if (croppedImage == null) {
+                  return;
+                }
+                if (context.mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReportScreen(
+                        image: File(image.path),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Icon(Icons.image_search_rounded),
+            ),
+          ],
+        ),
       ),
     );
   }
