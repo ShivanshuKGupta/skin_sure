@@ -4,6 +4,8 @@ const path = require('path');
 const { exec } = require('child_process');
 const { updateReport } = require('./report_utils');
 const { getSuggestions } = require('./suggestion_utils');
+const { startSegmentProcess, getSegment, endSegmentProcess } = require('./segment');
+const { classifyImage, endClassifyProcess, startClassifyProcess } = require('./classify');
 
 const app = express();
 const PORT = 3000;
@@ -25,38 +27,49 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
     cb(null, true);
-    // if (file.mimetype.startsWith('image/')) {
-    // } else {
-    //     cb(new Error('Only image files are allowed!'), false);
-    // }
 };
 
 const upload = multer({ storage, fileFilter });
 
-app.post('/segment', upload.single('image'), (req, res) => {
+app.post('/segment', upload.single('image'), async (req, res) => {
     try {
+        console.log('File uploaded successfully');
         const fileName = req.file.filename;
         const filePath = `public/${fileName}`;
         const id = fileName.split('.')[0];
         const segFilePath = `public/${id}_seg.jpg`;
 
-        const cmd = `python segment.py "${filePath}" "${segFilePath}"`;
+        // const cmd = `python segment.py "${filePath}" "${segFilePath}"`;
 
-        exec(cmd, { cwd: 'python' }, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error code: ${error.code}`);
-                console.error(`Error message: ${error.message}`);
-                res.status(400).json({ error: error.message });
-                return;
-            }
+        // exec(cmd, { cwd: 'python' }, (error, stdout, stderr) => {
+        //     if (error) {
+        //         console.error(`Error code: ${error.code}`);
+        //         console.error(`Error message: ${error.message}`);
+        //         res.status(400).json({ error: error.message });
+        //         return;
+        //     }
 
-            console.log(`Standard Output:\n${stdout}`);
-            if (stderr) {
-                console.error(`Standard Error:\n${stderr}`);
-            }
+        //     console.log(`Standard Output:\n${stdout}`);
+        //     if (stderr) {
+        //         console.error(`Standard Error:\n${stderr}`);
+        //     }
 
-            console.log('Segmentation completed');
+        //     console.log('Segmentation completed');
 
+        //     const report = {
+        //         "id": id,
+        //         "imgUrl": filePath,
+        //         "class": null,
+        //         "seg_image_url": segFilePath,
+        //         "suggestions": null,
+        //     };
+
+        //     updateReport(report);
+
+        //     res.status(200).json({ report });
+        // });
+
+        await getSegment(filePath, segFilePath, res, () => {
             const report = {
                 "id": id,
                 "imgUrl": filePath,
@@ -70,34 +83,53 @@ app.post('/segment', upload.single('image'), (req, res) => {
             res.status(200).json({ report });
         });
     } catch (error) {
+        console.error(error);
         res.status(400).json({ error: error.message });
     }
 });
 
-app.post('/classify', (req, res) => {
+app.post('/classify', async (req, res) => {
     try {
         const { id } = req.body;
         const filePath = `public/${id}.jpg`;
         const segFilePath = `public/${id}_seg.jpg`;
 
-        const cmd = `python classify.py "${segFilePath}"`;
+        // const cmd = `python classify.py "${segFilePath}"`;
 
-        exec(cmd, { cwd: 'python' }, async (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error code: ${error.code}`);
-                console.error(`Error message: ${error.message}`);
-                res.status(400).json({ error: error.message });
-                return;
-            }
+        // exec(cmd, { cwd: 'python' }, async (error, stdout, stderr) => {
+        //     if (error) {
+        //         console.error(`Error code: ${error.code}`);
+        //         console.error(`Error message: ${error.message}`);
+        //         res.status(400).json({ error: error.message });
+        //         return;
+        //     }
 
-            console.log(`Standard Output:\n${stdout}`);
-            if (stderr) {
-                console.error(`Standard Error:\n${stderr}`);
-            }
+        //     console.log(`Standard Output:\n${stdout}`);
+        //     if (stderr) {
+        //         console.error(`Standard Error:\n${stderr}`);
+        //     }
 
-            console.log('Classfication completed');
+        //     console.log('Classfication completed');
 
-            const lines = stdout.trim().split('\n');
+        //     const lines = stdout.trim().split('\n');
+        //     const label = lines[lines.length - 1].trim();
+
+        //     const report = {
+        //         "id": id,
+        //         "imgUrl": filePath,
+        //         "class": `${label}`,
+        //         "seg_image_url": segFilePath,
+        //         "suggestions": await getSuggestions(label),
+        //     };
+
+        //     updateReport(report);
+
+        //     res.status(200).json({ report });
+        // });
+
+        await classifyImage(filePath, segFilePath, res, async (data) => {
+            console.log(`data = `, data);
+            const lines = data.trim().split('\n');
             const label = lines[lines.length - 1].trim();
 
             const report = {
@@ -117,6 +149,16 @@ app.post('/classify', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+    await startSegmentProcess();
+    await startClassifyProcess();
     console.log(`Server started on http://localhost:${PORT}`);
+});
+
+/// add listeners to SIGINT and SIGTERM signals
+process.on('SIGINT', async () => {
+    console.log('Server shutting down');
+    endSegmentProcess();
+    endClassifyProcess();
+    process.exit(0);
 });
