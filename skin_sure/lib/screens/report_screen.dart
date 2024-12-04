@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../extensions/report_extension.dart';
+import '../globals.dart';
 import '../models/report.dart';
 import '../services/notification_service.dart';
 import '../services/server.dart';
@@ -128,7 +129,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   showError('Error deleting report: $e');
                 }
               },
-              color: Colors.red,
+              color: colorScheme.error,
               icon: const Icon(Icons.delete_rounded),
             ),
           if (report != null)
@@ -163,10 +164,13 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             const Divider(),
             Text(
-              report?.label?.toPascalCase() ?? 'Not yet classified yet.',
-              style: const TextStyle(
-                color: Colors.white,
+              '${labelFullForms[report?.label]?.toPascalCase() ?? 'Not yet classified yet.'}${cancerous(report?.label ?? '') ? ' (Cancerous)' : ''}',
+              style: TextStyle(
+                color: cancerous(report?.label ?? '')
+                    ? colorScheme.error
+                    : colorScheme.onSurface,
               ),
+              textAlign: TextAlign.center,
             ),
             const Divider(),
             Text(

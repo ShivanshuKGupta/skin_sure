@@ -70,6 +70,8 @@ class _ReportTileState extends State<ReportTile> {
                           fontSize: 20,
                           color: Colors.white,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
                         textAlign: TextAlign.center,
                       ),
                     ),

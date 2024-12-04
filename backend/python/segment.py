@@ -3,6 +3,9 @@ import sys
 
 from task12 import mask_image
 
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+
 while True:
     input_file_path = input()
     if input_file_path == "exit":

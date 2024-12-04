@@ -88,7 +88,12 @@ class _MainDrawerState extends State<MainDrawer> {
                       ),
                     ),
                     onChanged: (value) {
-                      Server.serverUrl = value;
+                      Server.serverUrl = value.trim().replaceAll(' ', '');
+                      // removing trailing slash
+                      while (Server.serverUrl.endsWith('/')) {
+                        Server.serverUrl = Server.serverUrl
+                            .substring(0, Server.serverUrl.length - 1);
+                      }
                     },
                     onEditingComplete: () async {
                       try {
