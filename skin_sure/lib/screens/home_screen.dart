@@ -98,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }),
       ),
+      extendBody: true,
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Row(
