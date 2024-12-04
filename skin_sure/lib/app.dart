@@ -12,7 +12,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Skin Cure',
+      title: 'Skin Sure',
       theme: ThemeData(
         textTheme: GoogleFonts.quicksandTextTheme(),
         colorScheme: ColorScheme.fromSeed(

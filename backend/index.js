@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { exec } = require('child_process');
-const { updateReport } = require('./report_utils');
+const { updateReport, deleteReport } = require('./report_utils');
 const { getSuggestions } = require('./suggestion_utils');
 const { startSegmentProcess, getSegment, endSegmentProcess } = require('./segment');
 const { classifyImage, endClassifyProcess, startClassifyProcess } = require('./classify');
@@ -39,36 +39,6 @@ app.post('/segment', upload.single('image'), async (req, res) => {
         const id = fileName.split('.')[0];
         const segFilePath = `public/${id}_seg.jpg`;
 
-        // const cmd = `python segment.py "${filePath}" "${segFilePath}"`;
-
-        // exec(cmd, { cwd: 'python' }, (error, stdout, stderr) => {
-        //     if (error) {
-        //         console.error(`Error code: ${error.code}`);
-        //         console.error(`Error message: ${error.message}`);
-        //         res.status(400).json({ error: error.message });
-        //         return;
-        //     }
-
-        //     console.log(`Standard Output:\n${stdout}`);
-        //     if (stderr) {
-        //         console.error(`Standard Error:\n${stderr}`);
-        //     }
-
-        //     console.log('Segmentation completed');
-
-        //     const report = {
-        //         "id": id,
-        //         "imgUrl": filePath,
-        //         "class": null,
-        //         "seg_image_url": segFilePath,
-        //         "suggestions": null,
-        //     };
-
-        //     updateReport(report);
-
-        //     res.status(200).json({ report });
-        // });
-
         await getSegment(filePath, segFilePath, res, () => {
             const report = {
                 "id": id,
@@ -94,39 +64,6 @@ app.post('/classify', async (req, res) => {
         const filePath = `public/${id}.jpg`;
         const segFilePath = `public/${id}_seg.jpg`;
 
-        // const cmd = `python classify.py "${segFilePath}"`;
-
-        // exec(cmd, { cwd: 'python' }, async (error, stdout, stderr) => {
-        //     if (error) {
-        //         console.error(`Error code: ${error.code}`);
-        //         console.error(`Error message: ${error.message}`);
-        //         res.status(400).json({ error: error.message });
-        //         return;
-        //     }
-
-        //     console.log(`Standard Output:\n${stdout}`);
-        //     if (stderr) {
-        //         console.error(`Standard Error:\n${stderr}`);
-        //     }
-
-        //     console.log('Classfication completed');
-
-        //     const lines = stdout.trim().split('\n');
-        //     const label = lines[lines.length - 1].trim();
-
-        //     const report = {
-        //         "id": id,
-        //         "imgUrl": filePath,
-        //         "class": `${label}`,
-        //         "seg_image_url": segFilePath,
-        //         "suggestions": await getSuggestions(label),
-        //     };
-
-        //     updateReport(report);
-
-        //     res.status(200).json({ report });
-        // });
-
         await classifyImage(filePath, segFilePath, res, async (data) => {
             console.log(`data = `, data);
             const lines = data.trim().split('\n');
@@ -143,6 +80,37 @@ app.post('/classify', async (req, res) => {
             updateReport(report);
 
             res.status(200).json({ report });
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.post('/delete-report', async (req, res) => {
+    try {
+        const { id } = req.body;
+        const filePath = `${id}.jpg`;
+        const segFilePath = `${id}_seg.jpg`;
+
+        const cmd = `del "${filePath}" "${segFilePath}"`;
+
+        await deleteReport(id);
+
+        exec(cmd, { cwd: 'python/public' }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error code: ${error.code}`);
+                console.error(`Error message: ${error.message}`);
+                res.status(400).json({ error: error.message });
+                return;
+            }
+
+            console.log(`Standard Output:\n${stdout}`);
+            if (stderr) {
+                console.error(`Standard Error:\n${stderr}`);
+            }
+
+            console.log('Files deleted successfully');
+            res.status(200).json({ message: 'Files deleted successfully' });
         });
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -55,9 +55,7 @@ class _ReportTileState extends State<ReportTile> {
                 ),
               ),
             ),
-            Container(
-              color: Colors.black.withOpacity(0.5),
-            ),
+            Container(color: Colors.black.withOpacity(0.5)),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -88,6 +86,12 @@ class _ReportTileState extends State<ReportTile> {
                 ],
               ),
             ),
+            if (report.label != null && cancerous(report.label!))
+              const Positioned(
+                top: 0,
+                right: 0,
+                child: Icon(Icons.warning_amber_rounded, color: Colors.red),
+              ),
           ],
         ),
       ),

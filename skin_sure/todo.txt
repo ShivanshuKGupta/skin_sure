@@ -21,3 +21,5 @@
 13. [Santosh Requested] Blurry, Focus, Well-lit, Mole Detection
 14. Use tflite versions of the models
 15. [DONE] Optimize backend to load model only once, when the server starts
+16. [Urgent !!!!!!!!!!!!!!!!!⚠⚠⚠] Fix Classification
+17. Reduce segmentation time

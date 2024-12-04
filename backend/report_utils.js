@@ -13,4 +13,17 @@ async function updateReport(report) {
     fs.writeFileSync('python/public/reports.json', JSON.stringify(reportData));
 }
 
-exports.updateReport = updateReport;
+async function deleteReport(id) {
+    let reportData = {};
+    try {
+        const data = fs.readFileSync('python/public/reports.json', 'utf8');
+        reportData = JSON.parse(data);
+    }
+    catch (e) {
+        console.error(e);
+    }
+    delete reportData[id];
+    fs.writeFileSync('python/public/reports.json', JSON.stringify(reportData));
+}
+
+module.exports = { updateReport, deleteReport };

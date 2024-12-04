@@ -349,9 +349,6 @@ class _CameraScreenState extends State<CameraScreen> {
     // } catch (e) {
     //   showError(e.toString());
     // }
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ReportScreen(
@@ -359,6 +356,9 @@ class _CameraScreenState extends State<CameraScreen> {
         ),
       ),
     );
+    while (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 }
 

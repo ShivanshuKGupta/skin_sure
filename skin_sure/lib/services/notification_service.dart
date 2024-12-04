@@ -34,20 +34,40 @@ Future<bool?> showConfirmDialog(
     context: appContext,
     builder: (context) {
       return AlertDialog(
-        title: Text(title),
-        content: Text(content),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          content,
+          style: TextStyle(
+            color: colorScheme.onSurface,
+          ),
+        ),
         actions: <Widget>[
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
-            child: const Text('Yes'),
+            child: Text(
+              'Yes',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: const Text('No'),
+            child: Text(
+              'No',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+              ),
+            ),
           ),
         ],
       );

@@ -11,6 +11,7 @@ import '../services/server.dart';
 import '../utils/image_utils.dart';
 import '../widgets/report_tile.dart';
 import 'camera_screen.dart';
+import 'drawer.dart';
 import 'report_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,6 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const Drawer(
+        child: MainDrawer(),
+      ),
       appBar: AppBar(
         title: const Text('Reports'),
       ),
@@ -43,6 +47,25 @@ class _HomeScreenState extends State<HomeScreen> {
               }
               if (snapshot.hasError) {
                 log('Error: ${snapshot.error}', name: 'HomeScreen');
+                return ListView(
+                  children: [
+                    SizedBox(
+                      height: height - MediaQuery.of(context).padding.top - 100,
+                      width: double.infinity,
+                      child: const Center(
+                        child: Text(
+                          'Error Fetching Reports!\nMaybe you\'re fetching from a wrong server or are offline',
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              if (snapshot.data == null || snapshot.data!.isEmpty) {
+                log('Error: ${snapshot.error} | data: ${snapshot.data}',
+                    name: 'HomeScreen');
                 return ListView(
                   children: [
                     SizedBox(
@@ -82,11 +105,14 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             FloatingActionButton(
               heroTag: 'camera',
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const CameraScreen()));
+                setState(() {
+                  future = server.getReports();
+                });
               },
               child: const Icon(Icons.photo_camera_outlined),
             ),
@@ -110,14 +136,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   return;
                 }
                 if (context.mounted) {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ReportScreen(
-                        image: File(image.path),
+                        image: File(croppedImage.path),
                       ),
                     ),
                   );
+                  setState(() {
+                    future = server.getReports();
+                  });
                 }
               },
               child: const Icon(Icons.image_search_rounded),

@@ -112,6 +112,26 @@ class _ReportScreenState extends State<ReportScreen> {
         title: Text(report == null ? 'Extracting mole...' : 'Report'),
         actions: [
           if (report != null)
+            IconButton(
+              onPressed: () async {
+                if (report == null) return;
+                try {
+                  final response = await showConfirmDialog(
+                    title: 'Delete Report?',
+                    content: 'Are you sure you want to delete this report?',
+                  );
+                  if (response != true) return;
+                  await server.deleteReport(report!);
+                  showMsg('Report deleted successfully');
+                  if (context.mounted) Navigator.of(context).pop();
+                } catch (e) {
+                  showError('Error deleting report: $e');
+                }
+              },
+              color: Colors.red,
+              icon: const Icon(Icons.delete_rounded),
+            ),
+          if (report != null)
             ElevatedButton.icon(
               onPressed: classifiying
                   ? null
@@ -181,6 +201,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     imageBytes: input,
                     modelAssetPath: ImageClassifier.mobileNetV2ModelAssetPath,
                   );
+                  log('probabilities: $probabilities');
 
                   /// Probablities to label
                   final label =
@@ -252,15 +273,12 @@ class _ReportScreenState extends State<ReportScreen> {
 //     required this.image,
 //     super.key,
 //   });
-
 //   @override
 //   State<ReportScreen> createState() => _ReportScreenState();
 // }
-
 // class _ReportScreenState extends State<ReportScreen> {
 //   Report? report = widget.report;
 //   bool loading = false;
-
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
@@ -331,7 +349,6 @@ class _ReportScreenState extends State<ReportScreen> {
 //                 //   return;
 //                 // }
 //                 // final imageBytes = await image.readAsBytes();
-
 //                 /// Pick Image from Gallery
 //                 final picker = ImagePicker();
 //                 final image =
@@ -341,13 +358,11 @@ class _ReportScreenState extends State<ReportScreen> {
 //                   return;
 //                 }
 //                 final input = await File(image.path).readAsBytes();
-
 //                 /// Classification
 //                 final probabilities = await ImageClassifier.classifyImage(
 //                   imageBytes: input,
 //                   modelAssetPath: ImageClassifier.mobileNetV2ModelAssetPath,
 //                 );
-
 //                 /// Probablities to label
 //                 final label = probabilities.indexOf(probabilities.reduce(max));
 //                 showMsg('Classified as ${labelFullForms.keys.toList()[label]}');

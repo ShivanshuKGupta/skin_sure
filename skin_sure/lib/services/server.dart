@@ -9,12 +9,14 @@ import '../models/report.dart';
 class Server {
   Server._();
 
-  static String serverUrl = !kDebugMode
+  static const defaultServerUrl = !kDebugMode
       ? 'https://wds1cg8m-3000.inc1.devtunnels.ms'
       : 'http://192.168.22.23:3000';
+  static String serverUrl = defaultServerUrl;
   static String get segmentUrl => '$serverUrl/segment';
   static String get classifyUrl => '$serverUrl/classify';
   static String get reportsUrl => '$serverUrl/public/reports.json';
+  static String get deleteUrl => '$serverUrl/delete-report';
 
   Future<Report> segmentImage(String imagePath) async {
     var request = http.MultipartRequest(
@@ -48,9 +50,7 @@ class Server {
   Future<Report> classifyImage(Report report) async {
     final response = await http.post(
       Uri.parse(classifyUrl),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: json.encode(report.toJson()),
     );
     if (response.statusCode == 200) {
@@ -70,6 +70,17 @@ class Server {
           .toList();
     } else {
       throw ('Failed to load reports. Status code: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deleteReport(Report report) async {
+    final response = await http.post(
+      Uri.parse(deleteUrl),
+      body: json.encode(report.toJson()),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode != 200) {
+      throw ('Failed to delete report. Status code: ${response.statusCode}');
     }
   }
 }

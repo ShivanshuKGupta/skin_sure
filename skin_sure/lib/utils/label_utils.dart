@@ -8,3 +8,6 @@ const Map<String, String> labelFullForms = {
   'df': 'Dermatofibroma',
   'vasc': 'Vascular lesion',
 };
+
+bool cancerous(String label) =>
+    label == 'mel' || label == 'bcc' || label == 'akiec';
