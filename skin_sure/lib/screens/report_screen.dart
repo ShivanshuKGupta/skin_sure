@@ -174,7 +174,45 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
             const Divider(),
             Text(
-              report?.suggestions ?? 'No suggestions yet.',
+              'Precautions',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              report?.precautions ?? 'No precautions yet.',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            const Divider(),
+            Text(
+              'Causes',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              report?.causes ?? 'NaN',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            const Divider(),
+            Text(
+              'Treatment',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              report?.treatment ?? 'NaN',
               style: const TextStyle(
                 color: Colors.white,
               ),
