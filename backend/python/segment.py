@@ -1,5 +1,6 @@
 import os
 import sys
+import io
 
 from task12 import mask_image
 
