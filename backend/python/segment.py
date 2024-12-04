@@ -13,7 +13,6 @@ while True:
 
     if folder:
         os.makedirs(folder, exist_ok=True)
-
     try:
         mask_image(input_file_path, output_file_path)
         print(f"Success: Mask applied and saved successfully to {output_file_path}")

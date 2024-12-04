@@ -34,9 +34,11 @@ async function classifyImage(filePath, segFilePath, res, onComplete) {
 
     const stdoutListener = (data) => {
         result += data.toString();
-        onComplete(result);
-        pythonProcess.stdout.removeListener('data', stdoutListener);
-        pythonProcess.stderr.removeListener('data', stderrListener);
+        if (result.includes('PREDICTION:')) {
+            onComplete(result);
+            pythonProcess.stdout.removeListener('data', stdoutListener);
+            pythonProcess.stderr.removeListener('data', stderrListener);
+        }
     };
 
     const stderrListener = (data) => {

@@ -67,7 +67,8 @@ app.post('/classify', async (req, res) => {
         await classifyImage(filePath, segFilePath, res, async (data) => {
             console.log(`data = `, data);
             const lines = data.trim().split('\n');
-            const label = lines[lines.length - 1].trim();
+            const lastLine = lines[lines.length - 1].trim();
+            const label = lastLine.split('PREDICTION:')[1].trim();
 
             const report = {
                 "id": id,

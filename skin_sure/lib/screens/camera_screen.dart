@@ -349,7 +349,7 @@ class _CameraScreenState extends State<CameraScreen> {
     // } catch (e) {
     //   showError(e.toString());
     // }
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ReportScreen(
           image: File(croppedImage.path),
