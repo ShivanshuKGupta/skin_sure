@@ -1,7 +1,11 @@
+import io
 import sys
 
 # from task3 import classify_image
 from mobile_net import mobileNetPrediction
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8")
 
 while True:
     input_file_path = input()
