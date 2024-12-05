@@ -11,7 +11,7 @@ class Server {
 
   static const defaultServerUrl = !kDebugMode
       ? 'https://wds1cg8m-3000.inc1.devtunnels.ms'
-      : 'http://192.168.22.23:3000';
+      : 'http://192.168.150.64:3000';
   static String serverUrl = defaultServerUrl;
   static String get segmentUrl => '$serverUrl/segment';
   static String get classifyUrl => '$serverUrl/classify';
