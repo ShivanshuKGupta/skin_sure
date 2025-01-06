@@ -26,4 +26,8 @@ async function deleteReport(id) {
     fs.writeFileSync('python/public/reports.json', JSON.stringify(reportData));
 }
 
+async function getSuggestions(report) {
+
+}
+
 module.exports = { updateReport, deleteReport };

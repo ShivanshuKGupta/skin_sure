@@ -3,6 +3,12 @@
         android:label="skin_sure"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- For Image Cropper -->
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <!-- For Image Cropper END -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -25,13 +31,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- For cropping -->
-        <activity
-            android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
-        <!-- For cropping end -->
-
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

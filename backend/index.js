@@ -2,10 +2,10 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { exec } = require('child_process');
-const { updateReport, deleteReport } = require('./report_utils');
-const { getSuggestions } = require('./suggestion_utils');
-const { startSegmentProcess, getSegment, endSegmentProcess } = require('./segment');
-const { classifyImage, endClassifyProcess, startClassifyProcess } = require('./classify');
+const { updateReport, deleteReport } = require('./src/report_utils');
+const { getSuggestions } = require('./src/suggestion_utils');
+const { startSegmentProcess, getSegment, endSegmentProcess } = require('./src/segment');
+const { classifyImage, endClassifyProcess, startClassifyProcess } = require('./src/classify');
 
 const app = express();
 const PORT = 3000;
