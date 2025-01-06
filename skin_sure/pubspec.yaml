@@ -44,6 +44,7 @@ dependencies:
   blur_detection: ^1.0.0
   tflite_flutter: ^0.11.0
   image_picker: ^1.1.2
+  flutter_markdown: ^0.7.5
 
 dev_dependencies:
   flutter_test:

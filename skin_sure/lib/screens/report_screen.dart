@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../extensions/report_extension.dart';
 import '../globals.dart';
@@ -169,49 +170,14 @@ class _ReportScreenState extends State<ReportScreen> {
               textAlign: TextAlign.center,
             ),
             const Divider(),
-            Text(
-              'Precautions',
-              style: TextStyle(
-                color: colorScheme.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            Markdown(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              styleSheet: MarkdownStyleSheet(
+                p: TextStyle(color: colorScheme.onSurface),
+                listBullet: TextStyle(color: colorScheme.onSurface),
               ),
-            ),
-            Text(
-              report?.precautions ?? 'No precautions yet.',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            const Divider(),
-            Text(
-              'Causes',
-              style: TextStyle(
-                color: colorScheme.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              report?.causes ?? 'NaN',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            const Divider(),
-            Text(
-              'Treatment',
-              style: TextStyle(
-                color: colorScheme.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              report?.treatment ?? 'NaN',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
+              data: report?.suggestions ?? 'No suggestions yet.',
             ),
           ],
         ),
