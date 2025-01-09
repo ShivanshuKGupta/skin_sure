@@ -169,8 +169,6 @@ app.post('/add-message', async (req, res) => {
             'createdAt': new Date().getTime(),
         };
         report.messages.push(botMessage);
-        console.log(`reports = `, reports);
-        console.log(`report = `, report);
         await updateReport(report);
         res.status(200).json({ report });
     } catch (error) {
