@@ -3,16 +3,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../extensions/report_extension.dart';
 import '../globals.dart';
+import '../models/chat/chat.dart';
 import '../models/report.dart';
 import '../services/notification_service.dart';
 import '../services/server.dart';
 import '../utils/extensions/string_extension.dart';
 import '../utils/label_utils.dart';
 import '../widgets/overlayed_images.dart';
+import 'chat/chat_screen.dart';
 
 class ReportScreen extends StatefulWidget {
   final Report? report;
@@ -170,18 +171,27 @@ class _ReportScreenState extends State<ReportScreen> {
               textAlign: TextAlign.center,
             ),
             const Divider(),
-            Markdown(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              styleSheet: MarkdownStyleSheet(
-                p: TextStyle(color: colorScheme.onSurface),
-                listBullet: TextStyle(color: colorScheme.onSurface),
-              ),
-              data: report?.suggestions ?? 'No suggestions yet.',
-            ),
           ],
         ),
       ),
+      floatingActionButton: report == null
+          ? null
+          : ElevatedButton.icon(
+              onPressed: () async {
+                // report = await server.getSuggestions(report!.id);
+                // setState(() {});
+                report!.chat ??= ChatData(messages: [], title: 'Get more help');
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) {
+                    return ChatScreen(
+                      report: report!,
+                    );
+                  }),
+                );
+              },
+              label: const Text('Need more help?'),
+              icon: const Icon(Icons.question_answer_rounded),
+            ),
     );
   }
 

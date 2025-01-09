@@ -26,8 +26,14 @@ async function deleteReport(id) {
     fs.writeFileSync('python/public/reports.json', JSON.stringify(reportData));
 }
 
-async function getSuggestions(report) {
-
+async function getAllReports(){
+    try {
+        const data = fs.readFileSync('python/public/reports.json', 'utf8');
+        return JSON.parse(data);
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
 }
 
-module.exports = { updateReport, deleteReport };
+module.exports = { updateReport, deleteReport, getAllReports };

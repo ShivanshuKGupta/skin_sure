@@ -2,10 +2,11 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { exec } = require('child_process');
-const { updateReport, deleteReport } = require('./src/report_utils');
+const { updateReport, deleteReport, getAllReports } = require('./src/report_utils');
 const { getSuggestions } = require('./src/suggestion_utils');
 const { startSegmentProcess, getSegment, endSegmentProcess } = require('./src/segment');
 const { classifyImage, endClassifyProcess, startClassifyProcess } = require('./src/classify');
+const { respond } = require('./src/gemini_utils');
 
 const app = express();
 const PORT = 3000;
@@ -75,12 +76,25 @@ app.post('/classify', async (req, res) => {
                 "imgUrl": filePath,
                 "class": `${label}`,
                 "seg_image_url": segFilePath,
-                "suggestions": await getSuggestions(label),
+                "suggestions": null,
             };
 
-            updateReport(report);
+            await updateReport(report);
 
             res.status(200).json({ report });
+
+            if (!report.messages) {
+                report.messages = [
+                    {
+                        'id': new Date().toISOString(),
+                        'txt': await getSuggestions(label),
+                        'from': 'bot',
+                        'indicative': false,
+                        'createdAt': new Date().getTime(),
+                    }
+                ];
+                await updateReport(report);
+            }
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -113,6 +127,46 @@ app.post('/delete-report', async (req, res) => {
             console.log('Files deleted successfully');
             res.status(200).json({ message: 'Files deleted successfully' });
         });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.post('/generate-suggestions', async (req, res) => {
+    try {
+        const { id } = req.body;
+        const reports = getAllReports();
+        const report = reports[id];
+        const suggestions = await getSuggestions(report['class']);
+        report.suggestions = suggestions;
+        res.status(200).json({ report });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.post('/add-message', async (req, res) => {
+    try {
+        const { id, message } = req.body;
+        const reports = await getAllReports();
+        const report = reports[id];
+        if (!report.messages) {
+            report.messages = [];
+        }
+        report.messages.push(message);
+        const response = await respond(report.messages, report['class']);
+        const botMessage = {
+            'id': new Date().toISOString(),
+            'txt': response,
+            'from': 'bot',
+            'indicative': false,
+            'createdAt': new Date().getTime(),
+        };
+        report.messages.push(botMessage);
+        console.log(`reports = `, reports);
+        console.log(`report = `, report);
+        await updateReport(report);
+        res.status(200).json({ report });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

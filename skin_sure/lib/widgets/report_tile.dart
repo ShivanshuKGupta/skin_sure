@@ -63,16 +63,19 @@ class _ReportTileState extends State<ReportTile> {
                 children: [
                   Expanded(
                     child: Center(
-                      child: Text(
-                        labelFullForms[report.label]?.toPascalCase() ?? 'NaN',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          labelFullForms[report.label]?.toPascalCase() ?? 'NaN',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                          textAlign: TextAlign.center,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
-                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),

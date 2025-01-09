@@ -14,7 +14,11 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Skin Sure',
       theme: ThemeData(
-        textTheme: GoogleFonts.quicksandTextTheme(),
+        textTheme: GoogleFonts.quicksandTextTheme().copyWith(
+          bodyMedium: GoogleFonts.quicksandTextTheme().bodyMedium!.copyWith(
+                color: Colors.white,
+              ),
+        ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,
           brightness: Brightness.dark,
@@ -23,7 +27,17 @@ class App extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        textTheme: GoogleFonts.quicksandTextTheme(),
+        textTheme: GoogleFonts.quicksandTextTheme().copyWith(
+          bodyMedium: GoogleFonts.quicksandTextTheme().bodyMedium!.copyWith(
+                color: Colors.white,
+              ),
+          bodySmall: GoogleFonts.quicksandTextTheme().bodySmall!.copyWith(
+                color: Colors.white,
+              ),
+          bodyLarge: GoogleFonts.quicksandTextTheme().bodyLarge!.copyWith(
+                color: Colors.white,
+              ),
+        ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blue,
           brightness: Brightness.dark,

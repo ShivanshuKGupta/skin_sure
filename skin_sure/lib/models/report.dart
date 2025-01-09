@@ -1,17 +1,19 @@
+import 'chat/chat.dart';
+import 'chat/message.dart';
+
 class Report {
   String id;
   String? imgPath;
   String? label;
   String? segImagePath;
-
-  String? suggestions;
+  ChatData? chat;
 
   Report({
     required this.id,
     this.imgPath,
     this.label,
     this.segImagePath,
-    this.suggestions,
+    this.chat,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,7 +21,7 @@ class Report {
         'imgUrl': imgPath,
         'class': label,
         'seg_image_url': segImagePath,
-        'suggestions': suggestions,
+        'messages': chat?.messages.map((e) => e.toJson()).toList(),
       };
 
   static Report fromJson(Map<String, dynamic> json) {
@@ -28,7 +30,15 @@ class Report {
       imgPath: json['imgUrl']?.toString(),
       label: json['class']?.toString(),
       segImagePath: json['seg_image_url']?.toString(),
-      suggestions: json['suggestions']?.toString(),
+      chat: json['messages'] != null
+          ? ChatData(
+              title: 'Get more help',
+              messages: (json['messages'] as List?)
+                      ?.map((e) => MessageData.fromJson(e['id'], e))
+                      .toList() ??
+                  [],
+            )
+          : null,
     );
   }
 }
