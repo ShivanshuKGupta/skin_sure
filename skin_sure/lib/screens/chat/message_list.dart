@@ -6,10 +6,9 @@ import '../../utils/extensions/datetime_extension.dart';
 import 'indicative_message.dart';
 import 'message.dart';
 
-// ignore: must_be_immutable
 class MessageList extends StatelessWidget {
-  ChatData chat;
-  MessageList({required this.chat, super.key});
+  final ChatData chat;
+  const MessageList({required this.chat, super.key});
 
   @override
   Widget build(BuildContext context) {

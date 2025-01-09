@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js --ignore ./python"
+    "start": "nodemon index.js --ignore ./python",
+    "production": "node index.js"
   },
   "keywords": [],
   "author": "",

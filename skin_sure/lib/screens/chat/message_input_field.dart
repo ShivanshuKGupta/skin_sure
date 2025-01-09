@@ -7,14 +7,19 @@ import 'validate_utils.dart';
 
 class MessageInputField extends StatefulWidget {
   final String initialValue;
-  const MessageInputField(
-      {required this.onSubmit, required this.initialValue, super.key});
-
   final Future<void> Function(MessageData msg) onSubmit;
+
+  const MessageInputField({
+    required this.onSubmit,
+    required this.initialValue,
+    super.key,
+  });
 
   @override
   State<MessageInputField> createState() => _MessageInputFieldState();
 }
+
+const duration = Duration(milliseconds: 200);
 
 class _MessageInputFieldState extends State<MessageInputField> {
   final _formKey = GlobalKey<FormState>();
@@ -43,175 +48,177 @@ class _MessageInputFieldState extends State<MessageInputField> {
   @override
   Widget build(BuildContext context) {
     int i = 0;
-    const duration = Duration(milliseconds: 200);
-
-    return Form(
-      key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  key: GlobalKey(),
-                  maxLines: 10,
-                  minLines: 1,
-                  keyboardType: TextInputType.multiline,
-                  contextMenuBuilder: contextMenuBuilder,
-                  controller: _msgTxtBox,
-                  validator: Validate.text,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                    hintText: 'Enter your query here',
-                  ),
-                  onSaved: (value) => txt = value!.trim(),
-                ).animate().fade(duration: duration * 4).then(),
-              ),
-              IconButton(
-                onPressed: () => submit(context),
-                icon: const Icon(Icons.send_rounded),
-              ).animate(delay: duration * 4).fade().slideX(
-                    begin: -0.2,
-                    end: 0,
-                    duration: duration,
-                  )
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 2),
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
               children: [
-                IconButton(
-                  onPressed: bold,
-                  iconSize: 25,
-                  icon: const Icon(Icons.format_bold_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
+                Expanded(
+                  child: TextFormField(
+                    maxLines: 10,
+                    minLines: 1,
+                    keyboardType: TextInputType.multiline,
+                    contextMenuBuilder: contextMenuBuilder,
+                    controller: _msgTxtBox,
+                    validator: Validate.text,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 15),
+                      hintText: 'Enter your query here',
+                    ),
+                    onSaved: (value) => txt = value!.trim(),
+                  ).animate().fade(duration: duration * 4).then(),
                 ),
                 IconButton(
-                  onPressed: italic,
-                  icon: const Icon(Icons.format_italic_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: makeTitle,
-                  icon: const Icon(Icons.title_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: quote,
-                  icon: const Icon(Icons.format_quote_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: codeBlock,
-                  icon: const Icon(Icons.code_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: showLinkBox,
-                  icon: const Icon(Icons.link_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: strikethrough,
-                  icon: const Icon(Icons.format_strikethrough_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: addHrLine,
-                  icon: const Icon(Icons.horizontal_rule_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: unorderedList,
-                  icon: const Icon(Icons.format_list_bulleted_outlined)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
-                IconButton(
-                  onPressed: orderedList,
-                  icon: const Icon(Icons.format_list_numbered_rounded)
-                      .animate()
-                      .then(delay: duration * i++)
-                      .fade(duration: duration)
-                      .slideY(
-                          duration: duration,
-                          curve: Curves.decelerate,
-                          begin: -1,
-                          end: 0),
-                ),
+                  onPressed: () => submit(context),
+                  icon: const Icon(Icons.send_rounded),
+                ).animate(delay: duration * 4).fade().slideX(
+                      begin: -0.2,
+                      end: 0,
+                      duration: duration,
+                    )
               ],
             ),
-          ),
-        ],
+            Container(
+              margin: const EdgeInsets.only(bottom: 2),
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  IconButton(
+                    onPressed: bold,
+                    iconSize: 25,
+                    icon: const Icon(Icons.format_bold_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: italic,
+                    icon: const Icon(Icons.format_italic_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: makeTitle,
+                    icon: const Icon(Icons.title_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: quote,
+                    icon: const Icon(Icons.format_quote_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: codeBlock,
+                    icon: const Icon(Icons.code_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: showLinkBox,
+                    icon: const Icon(Icons.link_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: strikethrough,
+                    icon: const Icon(Icons.format_strikethrough_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: addHrLine,
+                    icon: const Icon(Icons.horizontal_rule_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: unorderedList,
+                    icon: const Icon(Icons.format_list_bulleted_outlined)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                  IconButton(
+                    onPressed: orderedList,
+                    icon: const Icon(Icons.format_list_numbered_rounded)
+                        .animate()
+                        .then(delay: duration * i++)
+                        .fade(duration: duration)
+                        .slideY(
+                            duration: duration,
+                            curve: Curves.decelerate,
+                            begin: -1,
+                            end: 0),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
