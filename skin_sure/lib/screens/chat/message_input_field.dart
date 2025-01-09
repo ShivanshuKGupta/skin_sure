@@ -18,16 +18,8 @@ class MessageInputField extends StatefulWidget {
 
 class _MessageInputFieldState extends State<MessageInputField> {
   final _formKey = GlobalKey<FormState>();
-
   String txt = '';
-
-  final _msgTxtBox = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _msgTxtBox.text = widget.initialValue;
-  }
+  late final _msgTxtBox = TextEditingController(text: widget.initialValue);
 
   void submit(context) async {
     if (!_formKey.currentState!.validate()) return;

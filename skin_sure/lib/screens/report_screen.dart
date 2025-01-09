@@ -121,6 +121,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   );
                   if (response != true) return;
                   await server.deleteReport(report!);
+                  await Future.delayed(const Duration(milliseconds: 500));
                   showMsg('Report deleted successfully');
                   if (context.mounted) Navigator.of(context).pop();
                 } catch (e) {
@@ -177,18 +178,7 @@ class _ReportScreenState extends State<ReportScreen> {
       floatingActionButton: report == null
           ? null
           : ElevatedButton.icon(
-              onPressed: () async {
-                // report = await server.getSuggestions(report!.id);
-                // setState(() {});
-                report!.chat ??= ChatData(messages: [], title: 'Get more help');
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) {
-                    return ChatScreen(
-                      report: report!,
-                    );
-                  }),
-                );
-              },
+              onPressed: navigateToChatScreen,
               label: const Text('Need more help?'),
               icon: const Icon(Icons.question_answer_rounded),
             ),
@@ -215,16 +205,17 @@ class _ReportScreenState extends State<ReportScreen> {
     /// After check if report lable is null, if yes then classify image
 
     if (report!.label == null) {
-      Future.delayed(const Duration(milliseconds: 100), () {
+      Future.delayed(const Duration(milliseconds: 100), () async {
         setState(() {
           classifiying = false;
         });
-        classifyImage();
+        await classifyImage();
+        await navigateToChatScreen();
       });
     }
   }
 
-  void classifyImage() async {
+  Future<void> classifyImage() async {
     log('Classifying image: ${report!.id}');
     setState(() {
       classifiying = true;
@@ -241,114 +232,17 @@ class _ReportScreenState extends State<ReportScreen> {
       classifiying = false;
     });
   }
-}
 
-// class ReportScreen extends StatefulWidget {
-//   final Report? report;
-//   final XFile? image;
-//   const ReportScreen({
-//     required this.report,
-//     required this.image,
-//     super.key,
-//   });
-//   @override
-//   State<ReportScreen> createState() => _ReportScreenState();
-// }
-// class _ReportScreenState extends State<ReportScreen> {
-//   Report? report = widget.report;
-//   bool loading = false;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(report.label?.toUpperCase() ?? 'Report'),
-//         actions: [
-//           if (loading)
-//             const Padding(
-//               padding: EdgeInsets.all(8.0),
-//               child: SizedBox(
-//                 width: 20,
-//                 height: 20,
-//                 child: CircularProgressIndicator(),
-//               ),
-//             )
-//           else
-//             IconButton(
-//               onPressed: () async {
-//                 try {
-//                   setState(() {
-//                     loading = true;
-//                   });
-//                   report = await server.classifyImage(report);
-//                   setState(() {});
-//                   showMsg('Re-classified as ${report.label}');
-//                 } catch (e) {
-//                   showError('Error: $e');
-//                 }
-//                 setState(() {
-//                   loading = false;
-//                 });
-//               },
-//               icon: const Icon(Icons.refresh),
-//             ),
-//         ],
-//       ),
-//       body: Column(
-//         children: [
-//           InteractiveViewer(
-//             child: OverlayedImages(
-//               tag: report.id,
-//               imageSrc: Image.network(report.imageUrl),
-//               imageDest: Image.network(report.segImageUrl),
-//             ),
-//           ),
-//           const Divider(),
-//           Text(
-//             labelFullForms[report.label]?.toPascalCase() ??
-//                 'Not yet classified yet.',
-//             style: const TextStyle(
-//               color: Colors.white,
-//             ),
-//           ),
-//           const Divider(),
-//           Text(
-//             report.suggestions ?? 'No suggestions yet.',
-//             style: const TextStyle(
-//               color: Colors.white,
-//             ),
-//           ),
-//           if (kDebugMode)
-//             ElevatedButton(
-//               onPressed: () async {
-//                 /// Pick Image from server
-//                 // final image =
-//                 //     await ImagePicker().pickImage(source: ImageSource.gallery);
-//                 // if (image == null) {
-//                 //   return;
-//                 // }
-//                 // final imageBytes = await image.readAsBytes();
-//                 /// Pick Image from Gallery
-//                 final picker = ImagePicker();
-//                 final image =
-//                     await picker.pickImage(source: ImageSource.gallery);
-//                 if (image == null) {
-//                   print('No image selected');
-//                   return;
-//                 }
-//                 final input = await File(image.path).readAsBytes();
-//                 /// Classification
-//                 final probabilities = await ImageClassifier.classifyImage(
-//                   imageBytes: input,
-//                   modelAssetPath: ImageClassifier.mobileNetV2ModelAssetPath,
-//                 );
-//                 /// Probablities to label
-//                 final label = probabilities.indexOf(probabilities.reduce(max));
-//                 showMsg('Classified as ${labelFullForms.keys.toList()[label]}');
-//               },
-//               child: const Text('Classify using MobileNet v2'),
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+  Future<void> navigateToChatScreen() async {
+    // report = await server.getSuggestions(report!.id);
+    // setState(() {});
+    report!.chat ??= ChatData(messages: [], title: 'Get more help');
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) {
+        return ChatScreen(
+          report: report!,
+        );
+      }),
+    );
+  }
+}

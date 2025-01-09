@@ -44,94 +44,91 @@ class Message extends StatelessWidget {
                       ? const Icon(Icons.smart_toy_rounded)
                       : const Icon(Icons.person_3_rounded),
                 ).animate().slideX(),
-              GestureDetector(
-                key: ValueKey(msg.id),
-                child: Container(
-                  constraints: BoxConstraints(
-                    minWidth: 100,
-                    maxWidth: size.width - 35,
+              Container(
+                constraints: BoxConstraints(
+                  minWidth: 100,
+                  maxWidth: size.width - 80,
+                ),
+                padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
+                margin: const EdgeInsets.only(
+                  right: 10,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(first && !msgAlignment ? 0 : r),
+                    topRight: Radius.circular(first && msgAlignment ? 0 : r),
+                    bottomLeft: Radius.circular(r),
+                    bottomRight: Radius.circular(r),
                   ),
-                  padding: const EdgeInsets.only(left: 10, right: 10, top: 5),
-                  margin: const EdgeInsets.only(
-                    right: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(first && !msgAlignment ? 0 : r),
-                      topRight: Radius.circular(first && msgAlignment ? 0 : r),
-                      bottomLeft: Radius.circular(r),
-                      bottomRight: Radius.circular(r),
-                    ),
-                    color: msgAlignment
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                        : Theme.of(context)
-                            .colorScheme
-                            .secondary
-                            .withOpacity(0.3),
-                  ),
-                  child: Stack(
-                    children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (first && msg.from != UserType.user)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  right: 5.0, left: 1, top: 2),
-                              child: msg.from == UserType.bot
-                                  ? Text(
-                                      'Bot',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall!
-                                          .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          ),
-                                    )
-                                  : const Icon(Icons.person_3_rounded),
-                            ),
-                          MarkdownBody(
-                            fitContent: true,
-                            data: msg.txt,
-                            selectable: true,
+                  color: msgAlignment
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                      : Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.3),
+                ),
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (first && msg.from != UserType.user)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                right: 5.0, left: 1, top: 2),
+                            child: msg.from == UserType.bot
+                                ? Text(
+                                    'Bot',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall!
+                                        .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                  )
+                                : const Icon(Icons.person_3_rounded),
                           ),
-                          const SizedBox(height: 20)
-                        ],
-                      ),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                msg.createdAt.time,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall!
-                                    .copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                              ),
-                              const SizedBox(width: 4),
-                            ],
-                          ),
+                        MarkdownBody(
+                          fitContent: true,
+                          data: msg.txt,
+                          selectable: true,
                         ),
-                      )
-                    ],
-                  ),
-                ).animate().fade().slideX(
-                      begin: msgAlignment ? 1 : -1,
-                      end: 0,
-                      curve: Curves.decelerate,
+                        const SizedBox(height: 20)
+                      ],
                     ),
-              ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 2),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              msg.createdAt.time,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall!
+                                  .copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ).animate().fade().slideX(
+                    begin: msgAlignment ? 1 : -1,
+                    end: 0,
+                    curve: Curves.decelerate,
+                  ),
             ],
           );
   }

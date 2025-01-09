@@ -7,18 +7,13 @@ import 'indicative_message.dart';
 import 'message.dart';
 
 // ignore: must_be_immutable
-class MessageList extends StatefulWidget {
+class MessageList extends StatelessWidget {
   ChatData chat;
   MessageList({required this.chat, super.key});
 
   @override
-  State<MessageList> createState() => _MessageListState();
-}
-
-class _MessageListState extends State<MessageList> {
-  @override
   Widget build(BuildContext context) {
-    if (widget.chat.messages.isEmpty) {
+    if (chat.messages.isEmpty) {
       return Center(
         child: Text(
           'Send your first message',
@@ -29,7 +24,7 @@ class _MessageListState extends State<MessageList> {
       );
     }
 
-    final messages = widget.chat.messages.reversed.toList();
+    final messages = chat.messages.reversed.toList();
 
     return ListView.separated(
       reverse: true,
@@ -65,7 +60,7 @@ class _MessageListState extends State<MessageList> {
             nextMsg.from != msg.from ||
             !_sameDay(msg.createdAt, nextMsg.createdAt);
         return Message(
-          chat: widget.chat,
+          chat: chat,
           msg: msg,
           last: preMsg == null ||
               preMsg.from != msg.from ||
@@ -74,7 +69,7 @@ class _MessageListState extends State<MessageList> {
           msgAlignment: msg.from == UserType.user,
         );
       },
-      itemCount: widget.chat.messages.length + 1,
+      itemCount: chat.messages.length + 1,
     );
   }
 

@@ -6,7 +6,7 @@ const { updateReport, deleteReport, getAllReports } = require('./src/report_util
 const { getSuggestions } = require('./src/suggestion_utils');
 const { startSegmentProcess, getSegment, endSegmentProcess } = require('./src/segment');
 const { classifyImage, endClassifyProcess, startClassifyProcess } = require('./src/classify');
-const { respond } = require('./src/gemini_utils');
+const { respond, labelFullForms } = require('./src/gemini_utils');
 
 const app = express();
 const PORT = 3000;
@@ -79,12 +79,15 @@ app.post('/classify', async (req, res) => {
                 "suggestions": null,
             };
 
-            await updateReport(report);
-
-            res.status(200).json({ report });
-
             if (!report.messages) {
                 report.messages = [
+                    {
+                        'id': new Date().toISOString(),
+                        'txt': `You have been diagnosed with skin disease: **${labelFullForms[label]}**`,
+                        'from': 'bot',
+                        'indicative': true,
+                        'createdAt': new Date().getTime(),
+                    },
                     {
                         'id': new Date().toISOString(),
                         'txt': await getSuggestions(label),
@@ -93,8 +96,11 @@ app.post('/classify', async (req, res) => {
                         'createdAt': new Date().getTime(),
                     }
                 ];
-                await updateReport(report);
             }
+            await updateReport(report);
+
+            res.status(200).json({ report });
+
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
