@@ -68,6 +68,12 @@ def mobileNetPrediction(image_path) -> str:
         image = cv2.resize(hair_removal(image), (image_size, image_size))
         image = cv2.resize(image, (image_size, image_size))
         return image / 255.0  # Normalize to [0, 1]
+    
+    def preprocess_image_no_hair_removal(image_path):
+        image = cv2.imread(image_path)
+        # image = cv2.resize(hair_removal(image), (image_size, image_size))
+        image = cv2.resize(image, (image_size, image_size))
+        return image / 255.0  # Normalize to [0, 1]
 
     def get_largest_contiguous_region(mask, threshold=0.5):
         binary_mask = (mask > threshold).astype(np.uint8)
@@ -82,6 +88,8 @@ def mobileNetPrediction(image_path) -> str:
 
     # Prediction Pipeline
     def predict_classification(image_path):
+        org_img = preprocess_image_no_hair_removal(image_path)
+        org_img = org_img.astype(np.float32)
         # Preprocess image
         input_image = preprocess_image(image_path)
         # Ensure input_image is in float32 and within range [0, 1]
@@ -106,12 +114,12 @@ def mobileNetPrediction(image_path) -> str:
         )
 
         combined_image = cv2.addWeighted(
-            input_image, 0.8, largest_region_mask_3ch, 0.2, 0
+            org_img, 0.8, largest_region_mask_3ch, 0.2, 0
         )
 
         # Preprocess inputs for classification model
         input_image_preprocessed = preprocess_input(
-            np.expand_dims(input_image * 255.0, axis=0)
+            np.expand_dims(org_img * 255.0, axis=0)
         )
         combined_image_preprocessed = preprocess_input(
             np.expand_dims(combined_image * 255.0, axis=0)
