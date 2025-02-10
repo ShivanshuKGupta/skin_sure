@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:math' show max;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -58,47 +57,46 @@ class _MainDrawerState extends State<MainDrawer> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                if (kDebugMode)
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.secondary,
-                      foregroundColor: colorScheme.onSecondary,
-                    ),
-                    onPressed: () async {
-                      /// Pick Image from server
-                      // final image =
-                      //     await ImagePicker().pickImage(source: ImageSource.gallery);
-                      // if (image == null) {
-                      //   return;
-                      // }
-                      // final imageBytes = await image.readAsBytes();
-
-                      /// Pick Image from Gallery
-                      final picker = ImagePicker();
-                      final image =
-                          await picker.pickImage(source: ImageSource.gallery);
-                      if (image == null) {
-                        print('No image selected');
-                        return;
-                      }
-                      final input = await File(image.path).readAsBytes();
-
-                      /// Classification
-                      final probabilities = await ImageClassifier.classifyImage(
-                        imageBytes: input,
-                        modelAssetPath:
-                            ImageClassifier.mobileNetV2ModelAssetPath,
-                      );
-                      log('probabilities: $probabilities');
-
-                      /// Probablities to label
-                      final label =
-                          probabilities.indexOf(probabilities.reduce(max));
-                      showMsg(
-                          'Classified as ${labelFullForms.keys.toList()[label]}');
-                    },
-                    child: const Text('Classify using MobileNet v2'),
+                // if (kDebugMode)
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.secondary,
+                    foregroundColor: colorScheme.onSecondary,
                   ),
+                  onPressed: () async {
+                    /// Pick Image from server
+                    // final image =
+                    //     await ImagePicker().pickImage(source: ImageSource.gallery);
+                    // if (image == null) {
+                    //   return;
+                    // }
+                    // final imageBytes = await image.readAsBytes();
+
+                    /// Pick Image from Gallery
+                    final picker = ImagePicker();
+                    final image =
+                        await picker.pickImage(source: ImageSource.gallery);
+                    if (image == null) {
+                      print('No image selected');
+                      return;
+                    }
+                    final input = await File(image.path).readAsBytes();
+
+                    /// Classification
+                    final probabilities = await ImageClassifier.classifyImage(
+                      imageBytes: input,
+                      modelAssetPath: ImageClassifier.mobileNetV2ModelAssetPath,
+                    );
+                    log('probabilities: $probabilities');
+
+                    /// Probablities to label
+                    final label =
+                        probabilities.indexOf(probabilities.reduce(max));
+                    showMsg(
+                        'Classified as ${labelFullForms.keys.toList()[label]}');
+                  },
+                  child: const Text('Classify using MobileNet v2'),
+                ),
               ],
             ),
             Padding(

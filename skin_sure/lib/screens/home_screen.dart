@@ -43,14 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
             future: future,
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
+                return ListView(
+                  children: [
+                    SizedBox(
+                      height: height - MediaQuery.of(context).padding.top - 200,
+                      width: double.infinity,
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  ],
+                );
               }
               if (snapshot.hasError) {
                 log('Error: ${snapshot.error}', name: 'HomeScreen');
                 return ListView(
                   children: [
                     SizedBox(
-                      height: height - MediaQuery.of(context).padding.top - 100,
+                      height: height - MediaQuery.of(context).padding.top - 200,
                       width: double.infinity,
                       child: const Center(
                         child: Text(
